@@ -15,7 +15,6 @@ public class LoginAppTest {
         assertNull("Authentication should fail for an email that does not exist.", userName);
     }
 
-
     @Test
     public void testEmptyEmail() throws Exception {
         LoginApp loginApp = new LoginApp();
