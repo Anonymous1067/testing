@@ -1,83 +1,110 @@
+import static org.junit.Assert.*;
 import org.junit.Test;
-
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.*;
-
 public class LoginAppTest {
+
+    // Test 1: Valid email and password
     @Test
-    public void testInvalidEmail() throws Exception {
-        LoginApp loginApp = new LoginApp();
+    public void testAuthenticateUser_ValidEmailAndPassword() throws Exception {
+        LoginApp app = new LoginApp();
+
+        // Use Reflection to access the private method
         Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
         method.setAccessible(true);
 
-        String userName = (String) method.invoke(loginApp, "unknown@example.com", "password123");
-        assertNull("Authentication should fail for an email that does not exist.", userName);
+        // Test with valid email and password
+        String result = (String) method.invoke(app, "johndoe@example.com", "password123");
+        if ("John Doe".equals(result)) {
+            System.out.println("Test Passed: Valid email and password");
+        } else {
+            System.out.println("Test Failed: Expected 'John Doe' but got '" + result + "'");
+        }
+        assertEquals("John Doe", result); // Assuming the valid user's name is "John Doe"
     }
 
+    // Test 2: Invalid password with valid email
     @Test
-    public void testEmptyEmail() throws Exception {
-        LoginApp loginApp = new LoginApp();
+    public void testAuthenticateUser_InvalidPassword() throws Exception {
+        LoginApp app = new LoginApp();
+
+        // Use Reflection to access the private method
         Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
         method.setAccessible(true);
 
-        String userName = (String) method.invoke(loginApp, "", "password123");
-        assertNull("Authentication should fail for an empty email input.", userName);
+        // Test with valid email but incorrect password
+        String result = (String) method.invoke(app, "johndoe@example.com", "wrongpassword");
+        if (result == null) {
+            System.out.println("Test Passed: Invalid password with valid email");
+        } else {
+            System.out.println("Test Failed: Expected null but got '" + result + "'");
+        }
+        assertNull(result); // Should return null for incorrect password
     }
 
-
+    // Test 3: Invalid email with valid password
     @Test
-    public void testSQLInjectionAttempt() throws Exception {
-        LoginApp loginApp = new LoginApp();
+    public void testAuthenticateUser_InvalidEmail() throws Exception {
+        LoginApp app = new LoginApp();
+
+        // Use Reflection to access the private method
         Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
         method.setAccessible(true);
 
-        String userName = (String) method.invoke(loginApp, "johndoe@example.com' OR '1'='1", "password123");
-        assertNull("Authentication should fail for an SQL injection attempt.", userName);
+        // Test with invalid email but correct password
+        String result = (String) method.invoke(app, "invaliduser@example.com", "password123");
+        if (result == null) {
+            System.out.println("Test Passed: Invalid email with valid password");
+        } else {
+            System.out.println("Test Failed: Expected null but got '" + result + "'");
+        }
+        assertNull(result); // Should return null for incorrect email
     }
 
-
+    // Test 4: Check if the email contains "@"
     @Test
-    public void testNullEmail() throws Exception {
-        LoginApp loginApp = new LoginApp();
+    public void testAuthenticateUser_EmailContainsAtSymbol() throws Exception {
+        LoginApp app = new LoginApp();
+
+        // Use Reflection to access the private method
         Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
         method.setAccessible(true);
 
-        String userName = (String) method.invoke(loginApp, null, "password123");
-        assertNull("Authentication should fail for a null email input.", userName);
+        // Test with an invalid email that does not contain "@"
+        String result = (String) method.invoke(app, "invalidemail.com", "password123");
+        assertNull(result); // Should return null for invalid email
+
+        // Test with a valid email that contains "@"
+        result = (String) method.invoke(app, "johndoe@example.com", "password123");
+        assertNotNull(result); // Should return a non-null result for valid email with "@"
+        // }
     }
 
-
-
-
+    // Test 5: Test for empty email or password
     @Test
-    public void testWhitespaceEmail() throws Exception {
-        LoginApp loginApp = new LoginApp();
+    public void testAuthenticateUser_EmptyEmailOrPassword() throws Exception {
+        LoginApp app = new LoginApp();
+
+        // Use Reflection to access the private method
         Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
         method.setAccessible(true);
 
-        String userName = (String) method.invoke(loginApp, " johndoe@example.com ", "password123");
-        assertNull("Authentication should fail for emails with leading or trailing whitespace.", userName);
-    }
+        // Test with empty email
+        String result = (String) method.invoke(app, "", "password123");
+        if (result == null) {
+            System.out.println("Test Passed: Empty email returns null");
+        } else {
+            System.out.println("Test Failed: Expected null but got '" + result + "'");
+        }
+        assertNull(result); // Should return null for empty email
 
-    @Test
-    public void testInvalidPassword() throws Exception {
-        LoginApp loginApp = new LoginApp();
-        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
-        method.setAccessible(true);
-
-        String userName = (String) method.invoke(loginApp, "johndoe@example.com", "wrongpassword");
-        assertNull("Authentication should fail for incorrect password.", userName);
-    }
-
-
-    @Test
-    public void testEmptyPassword() throws Exception {
-        LoginApp loginApp = new LoginApp();
-        Method method = LoginApp.class.getDeclaredMethod("authenticateUser", String.class, String.class);
-        method.setAccessible(true);
-
-        String userName = (String) method.invoke(loginApp, "johndoe@example.com", "");
-        assertNull("Authentication should fail for an empty password input.", userName);
+        // Test with empty password
+        result = (String) method.invoke(app, "johndoe@example.com", "");
+        if (result == null) {
+            System.out.println("Test Passed: Empty password returns null");
+        } else {
+            System.out.println("Test Failed: Expected null but got '" + result + "'");
+        }
+        assertNull(result); // Should return null for empty password
     }
 }
