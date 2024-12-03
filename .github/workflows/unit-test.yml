@@ -1,0 +1,30 @@
+name: Run Unit Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env: # Set environment variables here
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '23'
+
+    - name: Compile and Run Tests
+      run: |
+        mkdir -p bin
+        javac -cp ".:lib/*" -d bin src/*.java test/*.java
+        java -Djava.awt.headless=true -cp "bin:lib/*" org.junit.runner.JUnitCore LoginAppTest
